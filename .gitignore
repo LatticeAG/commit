@@ -1,0 +1,26 @@
+# Spec-and-prompt hygiene (coordinator requirement)
+SPEC*
+*EXTREME*
+PROMPT*
+REVIEW*
+FIX_PROMPT*
+SELFREVIEW*
+DRAFT*
+REPORT*
+INTERFACES*
+STATUS*
+BUILD_PROMPT.md
+agiProducts.ts
+agiResearch.ts
+
+# Build artifacts
+node_modules/
+dist/
+*.tsbuildinfo
+.venv/
+
+# Local stores, exports, secrets
+store/
+*.sock
+*.key
+coverage/

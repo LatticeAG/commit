@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+// Commit CLI entry. Runs the TypeScript sources directly under Node >=22.18
+// native type stripping; falls back to dist/ when a build has been produced.
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const distEntry = join(here, "..", "dist", "cli.js");
+const srcEntry = join(here, "..", "src", "cli.ts");
+const mod = await import(existsSync(distEntry) ? distEntry : srcEntry);
+process.exit(await mod.main(process.argv.slice(2)));

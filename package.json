@@ -1,0 +1,28 @@
+{
+  "name": "@latticeagi/commit",
+  "version": "0.1.0",
+  "description": "LatticeAGI Commit zone core: M-of-N authorized conditional value transfers with escrow, deadlines, and disputes (commit/1). Simulation profile.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "bin": {
+    "commit": "./bin/commit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./sdk": "./src/sdk.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.ts",
+    "ci": "npm run typecheck && npm test",
+    "commit": "node src/cli.ts"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.1",
+    "typescript": "5.9.2"
+  }
+}
