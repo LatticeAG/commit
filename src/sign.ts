@@ -34,6 +34,13 @@ export function signBody(opts: {
   if (!SIGNABLE.has(kind)) throw err("SCHEMA_INVALID", `kind ${kind} is not signable by this tool`);
   if (!isId(keyId)) throw err("SCHEMA_INVALID", "key_id invalid");
 
+  // Fixture-key refusal: deterministic public seeds must never sign live
+  // bodies. The published conformance fixtures use repeated-byte seeds
+  // (test/fixtures.ts fills seed_i with byte i); refuse that class outright.
+  if (seed.length > 0 && seed.every((b) => b === seed[0])) {
+    throw err("UNAUTHENTICATED", "refusing deterministic (repeated-byte) seed material");
+  }
+
   let body: Record<string, unknown>;
   switch (kind) {
     case "approval": body = validApprovalBody(opts.bodyRaw) as unknown as Record<string, unknown>; break;

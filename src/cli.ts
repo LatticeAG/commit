@@ -2,20 +2,21 @@
 // mode; diagnostics on stderr; exit codes per the §4 family table.
 
 import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, readSync, closeSync, statSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
-import { D, generateKeypair, publicKeyFromSeed } from "./crypto.ts";
+import { D, H, generateKeypair, publicKeyFromSeed } from "./crypto.ts";
 import { err, exitCodeFor, isCommitError, NotImplementedSurface } from "./errors.ts";
 import { jcs, jcsBytes } from "./json/jcs.ts";
 import { checkArtifactBounds, parseStrictJson, type Json } from "./json/strict.ts";
 import { objectBytes, registryDigest } from "./objects.ts";
-import { isId } from "./scalars.ts";
+import { isId, strictU64 } from "./scalars.ts";
 import {
-  validCustodyManifest, validObjectBody, validTrustPin, validAsset,
+  validCustodyManifest, validObjectBody, validPolicy, validTrustPin, validAsset,
 } from "./schema.ts";
 import { loadConfig, parseConfig, parseToml } from "./config.ts";
 import { initStore, loadGenesisArtifacts } from "./genesis.ts";
-import { verifyBundle } from "./proof.ts";
+import { REDUCER_DIGEST, verifyBundle } from "./proof.ts";
 import { signBody } from "./sign.ts";
 import { migrateApply, migratePlan, readMigrationFile, storeBackup, storeVerify } from "./migrate.ts";
 import { rpcCall } from "./server.ts";
@@ -225,6 +226,54 @@ function cmdInit(flags: Flags): unknown {
     receiptSeed, mode: cfg.mode, simAccounts: cfg.sim_accounts, nowMs: BigInt(Date.now()),
   });
   return r;
+}
+
+function readPublicKeyFile(path: string, what: string): string {
+  let hex: string;
+  try { hex = readFileSync(path, "utf8").trim(); } catch {
+    throw err("STORAGE_UNAVAILABLE", `cannot read ${what} key file ${path}`);
+  }
+  if (!/^[0-9a-f]{64}$/.test(hex)) throw err("SCHEMA_INVALID", `${what} key file ${path} must contain 64 lowercase hex chars`);
+  return hex;
+}
+
+// Emit a correctly anchored trust.json. The reducer digest pins sha256 of the
+// reducer identity string (this implementation: sha256("commit-reducer/1"));
+// --reducer takes the identity string and the CLI hashes it, --reducer-digest
+// takes a precomputed 64-hex digest for third-party reducers.
+function cmdTrustInit(flags: Flags): unknown {
+  const policy = validPolicy(readJsonFile(req(flags, "policy-file")));
+  const custody = validCustodyManifest(readJsonFile(req(flags, "custody-manifest")));
+  const writerKey = readPublicKeyFile(req(flags, "writer-key-file"), "writer");
+  const custodyKeyFile = fstr(flags, "custody-key-file");
+  const custodyKey = custodyKeyFile === undefined ? custody.receipt_key : readPublicKeyFile(custodyKeyFile, "custody");
+  const writerEpoch = strictU64(fstr(flags, "writer-epoch") ?? "1", "--writer-epoch").toString();
+  const reducer = fstr(flags, "reducer");
+  const reducerDigestFlag = fstr(flags, "reducer-digest");
+  if (reducer !== undefined && reducerDigestFlag !== undefined) {
+    throw err("SCHEMA_INVALID", "pass only one of --reducer or --reducer-digest");
+  }
+  let reducerDigest = REDUCER_DIGEST;
+  if (reducerDigestFlag !== undefined) {
+    if (!/^[0-9a-f]{64}$/.test(reducerDigestFlag)) throw err("SCHEMA_INVALID", "--reducer-digest must be 64 lowercase hex");
+    reducerDigest = reducerDigestFlag;
+  } else if (reducer !== undefined) {
+    reducerDigest = H(Buffer.from(reducer));
+  }
+  const trust = validTrustPin({
+    v: 1, tenant: policy.tenant, environment: policy.environment,
+    genesis_policy_hash: D("policy", policy as unknown as Json),
+    writer_key: writerKey, writer_epoch: writerEpoch,
+    custody_key: custodyKey,
+    custody_manifest_hash: D("custody_manifest", custody as unknown as Json),
+    reducer_digest: reducerDigest,
+    minimum_checkpoint: null,
+  });
+  const out = fstr(flags, "out");
+  if (out !== undefined) {
+    writeExclusive(out, Buffer.from(jcs(trust as unknown as Json) + "\n"), flags["replace-output"] === true);
+  }
+  return trust;
 }
 
 function cmdStoreVerify(flags: Flags): unknown {
@@ -443,6 +492,7 @@ commands:
   health
   canonicalize --kind --file            sign --kind --body-file --key-fd --key-id --journal-dir --out
   keygen --out                          init --config --policy-file --trust-file --custody-manifest --out
+  trust init --policy-file --custody-manifest --writer-key-file [--custody-key-file --writer-epoch --reducer|--reducer-digest] --out
   serve --config                        store verify --store --trust-file
   store backup --store --out            store migrate plan|apply
 `;
@@ -485,6 +535,7 @@ export async function main(argv: string[]): Promise<number> {
       case "sign": result = cmdSign(flags); break;
       case "keygen": result = cmdKeygen(flags); break;
       case "init": result = cmdInit(flags); break;
+      case "trust init": result = cmdTrustInit(flags); break;
       case "store verify": result = cmdStoreVerify(flags); break;
       case "store backup": result = cmdStoreBackup(flags); break;
       case "store migrate plan": result = cmdMigratePlan(flags); break;
@@ -520,4 +571,10 @@ export async function main(argv: string[]): Promise<number> {
     }
     return exitCodeFor(code);
   }
+}
+
+// Direct entry: `node src/cli.ts` (and the `npm run commit` script) invoke
+// main here; bin/commit imports this module and invokes main itself.
+if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exit(await main(process.argv.slice(2)));
 }
