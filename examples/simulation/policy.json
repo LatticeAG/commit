@@ -1,0 +1,116 @@
+{
+  "v": 1,
+  "policy_id": "pol1",
+  "tenant": "lab1",
+  "environment": "simulation",
+  "custody": "sim1",
+  "asset": {
+    "code": "SIMUSD",
+    "scale": 2,
+    "custody": "sim1"
+  },
+  "members": [
+    {
+      "key_id": "k1",
+      "principal": "alice",
+      "kind": "human",
+      "public_key": "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c"
+    },
+    {
+      "key_id": "k10",
+      "principal": "jay",
+      "kind": "human",
+      "public_key": "43a72e714401762df66b68c26dfbdf2682aaec9f2474eca4613e424a0fbafd3c"
+    },
+    {
+      "key_id": "k2",
+      "principal": "bob",
+      "kind": "human",
+      "public_key": "8139770ea87d175f56a35466c34c7ecccb8d8a91b4ee37a25df60f5b8fc9b394"
+    },
+    {
+      "key_id": "k3",
+      "principal": "carol",
+      "kind": "service",
+      "public_key": "ed4928c628d1c2c6eae90338905995612959273a5c63f93636c14614ac8737d1"
+    },
+    {
+      "key_id": "k4",
+      "principal": "dana",
+      "kind": "human",
+      "public_key": "ca93ac1705187071d67b83c7ff0efe8108e8ec4530575d7726879333dbdabe7c"
+    },
+    {
+      "key_id": "k5",
+      "principal": "eli",
+      "kind": "service",
+      "public_key": "6e7a1cdd29b0b78fd13af4c5598feff4ef2a97166e3ca6f2e4fbfccd80505bf1"
+    },
+    {
+      "key_id": "k6",
+      "principal": "fay",
+      "kind": "human",
+      "public_key": "8a875fff1eb38451577acd5afee405456568dd7c89e090863a0557bc7af49f17"
+    },
+    {
+      "key_id": "k7",
+      "principal": "gus",
+      "kind": "human",
+      "public_key": "ea4a6c63e29c520abef5507b132ec5f9954776aebebe7b92421eea691446d22c"
+    },
+    {
+      "key_id": "k8",
+      "principal": "hal",
+      "kind": "human",
+      "public_key": "1398f62c6d1a457c51ba6a4b5f3dbd2f69fca93216218dc8997e416bd17d93ca"
+    },
+    {
+      "key_id": "k9",
+      "principal": "ivy",
+      "kind": "human",
+      "public_key": "fd1724385aa0c75b64fb78cd602fa1d991fdebf76b13c58ed702eac835e9f618"
+    }
+  ],
+  "approve": {
+    "threshold": 2,
+    "keys": [
+      "k1",
+      "k2",
+      "k3"
+    ],
+    "mandatory_principals": [
+      "alice"
+    ]
+  },
+  "attest": {
+    "threshold": 2,
+    "keys": [
+      "k4",
+      "k5"
+    ],
+    "mandatory_principals": []
+  },
+  "arbitrate": {
+    "threshold": 2,
+    "keys": [
+      "k6",
+      "k7",
+      "k8"
+    ],
+    "mandatory_principals": []
+  },
+  "control": {
+    "threshold": 2,
+    "keys": [
+      "k10",
+      "k9"
+    ],
+    "mandatory_principals": []
+  },
+  "max_amount_minor": "50000",
+  "max_exposure_minor": "100000",
+  "daily_commit_minor": "100000",
+  "max_duration_ms": "2592000000",
+  "min_challenge_ms": "1000",
+  "rules_digest": "72badc431a9456ba6517b75de274294a6b45884f483dc42e9d6d2b491826def6"
+}

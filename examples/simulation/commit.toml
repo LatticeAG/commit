@@ -1,0 +1,57 @@
+# Demonstration only: all keys in this directory are public test material.
+# Paths are relative to the current working directory (the repository root).
+version = 1
+mode = "simulation"
+tenant = "lab1"
+listen = "unix:examples/simulation/commit.sock"
+store = "examples/simulation/store"
+policy_object = "pol1"
+trust_file = "examples/simulation/trust.json"
+custody_manifest_file = "examples/simulation/custody.json"
+writer_key_ref = "file:examples/simulation/writer-seed.txt"
+writer_epoch = "1"
+max_frame_bytes = 1048576
+max_blob_bytes = 1048576
+max_inflight_requests = 64
+max_objects_per_principal = 1000
+max_unbound_object_bytes = "10485760"
+request_timeout_ms = 10000
+clock_max_skew_ms = "30000"
+timer_poll_ms = 1000
+clock_source = "host-synchronized"
+proof_directory = "examples/simulation/proofs"
+audit_socket = "none"
+audit_delivery = "optional-local-outbox"
+
+[storage]
+schema = 1
+journal_mode = "WAL"
+synchronous = "FULL"
+busy_timeout_ms = 5000
+min_free_bytes = "0"
+backup_interval_ms = "86400000"
+retain_unresolved = true
+retain_economic_days = 365
+
+[custody]
+profile = "sim-ledger/1"
+credential_ref = "none"
+egress_allowlist = []
+lookup_interval_ms = 1000
+max_lookup_interval_ms = 60000
+max_attempts = 3
+
+[[principals]]
+# Replace with your uid (id -u) before starting the daemon.
+uid = 1000
+principal = "alice"
+capability = "demo"
+methods = ["health.get"]
+object_kinds = []
+commit_ids = []
+max_amount_minor = "0"
+expires_ms = "9223372036854775807"
+
+[[sim_accounts]]
+principal = "alice"
+available = "100000"
