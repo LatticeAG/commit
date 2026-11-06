@@ -2,7 +2,8 @@
 // mode; diagnostics on stderr; exit codes per the §4 family table.
 
 import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, readSync, closeSync, statSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import crypto from "node:crypto";
 import { D, generateKeypair, publicKeyFromSeed } from "./crypto.ts";
 import { err, exitCodeFor, isCommitError, NotImplementedSurface } from "./errors.ts";
@@ -520,4 +521,9 @@ export async function main(argv: string[]): Promise<number> {
     }
     return exitCodeFor(code);
   }
+}
+
+// Importing this module exposes main without running the CLI.
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  process.exitCode = await main(process.argv.slice(2));
 }
