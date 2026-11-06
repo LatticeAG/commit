@@ -38,3 +38,5 @@ In another terminal, from the same directory:
 ```
 
 Stop the foreground daemon with Ctrl-C. Initialization is create-only; remove the example store and socket when you deliberately want to start over. The example capability permits only health checks. Provision your own keys, policy, trust pin and custody manifest for any independent environment.
+
+Node's built-in `node:sqlite` is experimental on Node 22 and may emit an `ExperimentalWarning` when SQLite is loaded, including during tests and CLI commands. This warning is expected; other Node warnings remain visible. Node 24 is used in CI.
