@@ -1,0 +1,17 @@
+{
+  "v": 1,
+  "custody": "sim1",
+  "profile": "sim-ledger/1",
+  "asset": {
+    "code": "SIMUSD",
+    "scale": 2,
+    "custody": "sim1"
+  },
+  "implementation_digest": "a12aea47764f27a2db34a73ec368c3a156a32e251a2026145a25d8961d1e6978",
+  "receipt_key": "66be7e332c7a453332bd9d0a7f7db055f5c5ef1a06ada66d98b39fb6810c473a",
+  "idempotency_min_ms": "2592000000",
+  "authoritative_lookup": true,
+  "atomic_allocation": true,
+  "fencing": true,
+  "retry_mode": "never"
+}

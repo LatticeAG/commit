@@ -1,0 +1,12 @@
+{
+  "v": 1,
+  "tenant": "lab1",
+  "environment": "simulation",
+  "genesis_policy_hash": "ca0ebbeedb9541010c36af859574d1a123f92676269e7d49ec1f87e6fdb61b83",
+  "writer_key": "0b513ad9b4924015ca0902ed079044d3ac5dbec2306f06948c10da8eb6e39f2d",
+  "writer_epoch": "1",
+  "custody_key": "66be7e332c7a453332bd9d0a7f7db055f5c5ef1a06ada66d98b39fb6810c473a",
+  "custody_manifest_hash": "0617ada3ca30b0b70457a03cc9c89c4515dba2eb86c5ecd9bd114ff9cdfa9e54",
+  "reducer_digest": "03144a1230636a600478f185ad50b08d0be444303288887eee91d02d337018bf",
+  "minimum_checkpoint": null
+}
