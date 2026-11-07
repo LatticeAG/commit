@@ -1,13 +1,29 @@
 // SQLite persistence (§6). node:sqlite DatabaseSync; BEGIN IMMEDIATE for every
 // mutating reducer; WAL + synchronous=FULL; one writer process.
 
-import { DatabaseSync } from "node:sqlite";
+import { createRequire } from "node:module";
+import type { DatabaseSync as SQLiteDatabaseSync } from "node:sqlite";
 import { mkdirSync, writeFileSync, renameSync, openSync, fsyncSync, closeSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { H } from "./crypto.ts";
 import { jcsBytes } from "./json/jcs.ts";
 import type { Json } from "./json/strict.ts";
 import type * as T from "./types.ts";
+
+// Node 22 emits this warning while loading the built-in module. Suppress only
+// that known warning, and restore the original handler immediately afterwards.
+const emitWarning = process.emitWarning;
+let DatabaseSync: typeof SQLiteDatabaseSync;
+try {
+  process.emitWarning = ((...args: unknown[]) => {
+    if (args[0] === "SQLite is an experimental feature and might change at any time" &&
+        args[1] === "ExperimentalWarning") return;
+    Reflect.apply(emitWarning, process, args);
+  }) as typeof process.emitWarning;
+  ({ DatabaseSync } = createRequire(import.meta.url)("node:sqlite") as typeof import("node:sqlite"));
+} finally {
+  process.emitWarning = emitWarning;
+}
 
 export const STORAGE_VERSION = 1;
 export const PROTOCOL = "commit/1";
@@ -253,7 +269,7 @@ CREATE TABLE IF NOT EXISTS counters (name TEXT PRIMARY KEY, value INTEGER NOT NU
 `;
 
 export class Store {
-  readonly db: DatabaseSync;
+  readonly db: SQLiteDatabaseSync;
   readonly dir: string;
 
   constructor(path: string, dir?: string) {
