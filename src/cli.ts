@@ -1,6 +1,8 @@
 // `commit` CLI (§4). One canonical JSON value + newline on stdout in --json
 // mode; diagnostics on stderr; exit codes per the §4 family table.
 
+import "./cli-warnings.ts";
+
 import { existsSync, mkdirSync, openSync, readFileSync, readdirSync, readSync, closeSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
